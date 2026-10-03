@@ -2,14 +2,14 @@ IOT
 ===
 🔙 [MENU README](../README.md#note)
 
-> 韌體拆解
+> Firmware Analysis / Extraction
 
 # Enviroment
 ```bash
-自己的Linux配上檔案
+Use your own Linux VM with the firmware files
 ```
 ```bash
-# 韌體檔案壓縮工具
+# Firmware filesystem decompression / unsquashfs tool
 # Parrot
 git clone https://github.com/useidel/sasquatch.git
 sh build.sh
@@ -18,7 +18,7 @@ git clone --quiet --depth 1 --branch "master" https://github.com/devttys0/sasqua
 cd sasquatch
 wget https://github.com/devttys0/sasquatch/pull/47.patch && patch -p1 < 47.patch && sudo ./build.sh
 
-# 分析二進制檔案工具
+# Binary file analysis tool
 binwalk
 ```
 
@@ -39,7 +39,7 @@ grep -nir <KEYWORD> . #content
 # Dlink_firmware.bin
 Target
 ```bash
-找到telnet的密碼
+Find the Telnet password
 ```
 ```bash
 binwalk -t -e Dlink_firmware.bin
@@ -74,15 +74,15 @@ cat /home/kali/Desktop/IOT/_Dlink_firmware.bin.extracted/squashfs-root/etc/confi
 # D6000-V1.0.0.41_1.0.1.bin
 Target
 ```bash
-找到6組密碼 : 5組明碼、1組密文
+Find 6 sets of passwords: 5 plaintext, 1 hash/ciphertext
 ```
 ```bash
 binwalk -t -e DVRF_v03.bin
 
-# 明碼
+# Plaintext
 grep -nir passwd .
 
-# 密文
+# Ciphertext / Hash
 find . -name passwd -ls 2> /dev/null
 
 
@@ -113,45 +113,45 @@ pip3 install numpy
 
 
 # Entropy Range : 1~10
-# Entropy 的值越高，表示資訊的不確定性越大，文件內容越雜亂。
-# Entropy 的值越低，表示資訊的不確定性越小，文件內容越有規律。
+# Higher entropy indicates greater uncertainty/randomness and more chaotic file content.
+# Lower entropy indicates less uncertainty, more structured/regular file content.
 
-# 通常一篇英文文章大約在4-6
+# Typically, an English text article has an entropy around 4-6
 ```
 Dlink_firmware.bin
 ```bash
-# 根據Entropy分析
-# 基本上該檔案不是被加密就是被壓縮
-# 但可以觀察到中間和尾段都有一段是稍微沒有那麼亂的
-# 觀察Dlink_firmware.bin中間跟尾段的雜亂程度
+# Based on Entropy analysis:
+# Generally, the file is either encrypted or compressed.
+# However, we can observe that the middle and trailing sections are slightly less chaotic.
+# Inspect the randomness of Dlink_firmware.bin in the middle and trailing sections:
 hexdump -C -v Dlink_firmware.bin
-# 可以看出這段都是00組成
+# We can see this section consists purely of 00 bytes
 
 ```
 encrypted.bin
 ```bash
-# 換句話說
-# encrypted.bin中間跟尾段有一段是以差不多的東西組成的
+# In other words:
+# The middle and trailing sections of encrypted.bin are composed of similar repeating patterns
 hexdump -C -v encrypted.bin
 
 
-# 思考什麼情況會有這樣的結果呢
-# 00在什麼情況下做完處理結果跟一開始差不多
-# XOR真直表
+# Consider what scenario would produce this result:
+# Under what operation does 00 yield an output that matches the key?
+# XOR truth table:
   0 1 -> key
 0 0 1 -> cipher
 1
 ```
 Steam XOR
 ```bash
-# Dlink_firmware.bin 一般檔案的最高頻率部分
+# Dlink_firmware.bin: Highest frequency bytes in standard files
 hexdump -C -v Dlink_firmware.bin | cut -d ' ' -f3-20 | sort | uniq -c | sort -nr | head -n 20
   2511 00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
      4 00 00 00 01 00 00 00 00  00 00 3f 91 45 84 68 3b
      4 00 00 00 00 00 3f 91 45  84 68 3b de de a6 0f 23
 
 
-# encrypted.bin 檔案的最高頻率部分
+# encrypted.bin: Highest frequency byte sequences in the file
 hexdump -C -v encrypted.bin | cut -d ' ' -f3-20 | sort | uniq -c | sort -nr | head -n 20
     111 88 44 a2 d1 68 b4 5a 2d  88 44 a2 d1 68 b4 5a 2d
      19 88 45 fb 8b 95 83 20 75  d2 44 a2 d0 01 96 84 1b
@@ -176,7 +176,7 @@ binwalk -t decrypted.bin
 ```
 
 # encrypted.bin - XORTool
-CTF XOR 速解
+CTF Quick XOR Cracking
 ```bash
 # install
 python -m pip install xortool
@@ -190,8 +190,8 @@ pip install dist/xortool*.whl
 xortool enctypted.bin
 xortool cipher -c " "
 xortool encrypted.bin -c 00
-# -c:指定最常出現的字(一般是空格)
-# -m:指定最大嘗試的 key 長度
+# -c: Specify most frequent character (usually space, or 00 for null bytes)
+# -m: Specify maximum key length to try
 
 
 # decrypted

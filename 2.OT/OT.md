@@ -5,16 +5,16 @@ OT
 
 # OT
 ```
-SCADA <--Modbus--> Controller  <====> 現場
-(量、測、調、控)    (RTU、DCS、PLC)    (機台、設備、設施)
+SCADA <--Modbus--> Controller  <====> Field / Plant
+(Measure, Sense, Adjust, Control)  (RTU, DCS, PLC)  (Machines, Equipment, Facilities)
 
-量(Read)調(Write) : 類比訊號
-測控              : 非類比訊號
+Measure (Read) / Adjust (Write) : Analog signals
+Sense / Control                 : Discrete / Digital (Non-analog) signals
 ```
 
 # tcpdump
 ```bash
-# 在 Modbus 通信中，通常是使用 TCP 協定的 502 Port
+# In Modbus communication, TCP port 502 is typically used
 tcpdump tcp port 502 -vv -w modbus.cap
 tcpdump -i ens3 port 502 -A -w OT_Dump.pcap
 ```
@@ -29,7 +29,7 @@ Setting
 3. Protocal Preference
 4. "Cancel"  Aynalze TCP sequence numbers
 ```
-網卡型號和MAC地址
+NIC Vendor and MAC Address
 ```
 1. View
 2. Name Resolution
@@ -37,7 +37,7 @@ Setting
 ```
 Statstic
 ```
-1. Endpoints : 網卡、IP數量
+1. Endpoints : Network adapters, IP count
 2. Conversation
 3. Protocol Hierachy
 ```
@@ -49,18 +49,18 @@ mbtcp.trans_id=247
 # Modbus
 Modbus/TCP
 ```
-1. Transaction Identifier：佔2個Byte，用於標示通訊的識別碼
-2. Protocol Identifier   ：佔2個Byte，用於表示 Modbus 協定的版本
-3. Length                ：佔2個Byte，表示後續資料的長度
-4. Unit Identifier       ：佔1個Byte，用於識別 Modbus 設備或單元
+1. Transaction Identifier : 2 bytes, identifies transaction pairing
+2. Protocol Identifier    : 2 bytes, indicates Modbus protocol version (0 = Modbus/TCP)
+3. Length                 : 2 bytes, indicates length of following bytes
+4. Unit Identifier        : 1 byte, identifies Modbus slave device or unit
 ```
 Modbus
 ```
-1. Function Code：佔1個Byte，表示 Modbus 操作的類型。
-                  功能碼用於區分讀數據、寫數據、診斷等不同的 Modbus 操作
-                  function多少出去就多少回來，如果不一致基本上就是error code
-2. Data Field   ：(Click Function Code)這個字段的長度可變，根據Modbus操作的不同而異
-                  它包含了具體的數據，例如讀取或寫入的數據
+1. Function Code : 1 byte, indicates the type of Modbus operation.
+                   Used to distinguish reading data, writing data, diagnostics, etc.
+                   Normally, the function code in the request matches the response; if mismatched (e.g., +0x80), it indicates an error/exception code.
+2. Data Field    : (Click Function Code) Variable length depending on the Modbus operation;
+                   contains payload data, such as register addresses, counts, or read/write values.
 ```
 
 

@@ -23,53 +23,53 @@ ip route
 ```
 Nmap Parameter
 ```bash
--sT           TCP完整掃描(SYN、SYN+ACK、ACK)
-              完整連線易留下紀錄 
-              效率上實測比sS快很多
--sS           SYN半開放式掃描
--sP           ping ICMP 掃描(掃有開機的主機)
--sV           各種服務
--sU           UDP掃描
--sC           自動腳本
--sn           Ping scan 一開始想針對大範圍網段，確認同網段的主機哪些有開機，適合使用
--Pn           PingNo掃描之前不需要用ping命令，有些防火牆禁止ping命令
--O            作業系統
--A            更加詳細的輸出(作業系統與各種服務)
--n            不執行 DNS 解析，直接使用 IP 地址
--p-           0-65535所有訊息
--p 1-65535    PORT Nmap 為了掃描效率，只會掃描常見的 1000 個 Port
--p T:80       TCP
--P U:53       UDP
---script vuln 易遭受攻擊的漏洞
--T4           掃描速度如果網路環境穩定，參數建議調整為 -T4
-              無論如何，一定要開啟增進掃描效率
--oG -         選項用於生成 grepable（可供 grep 使用）的輸出格式
+-sT           TCP connect scan (SYN, SYN+ACK, ACK)
+              Full connection, easily logged
+              In practice, significantly faster than -sS in certain environments
+-sS           TCP SYN stealth scan (half-open)
+-sP           Ping ICMP scan (check online hosts)
+-sV           Probe open ports to determine service/version info
+-sU           UDP scan
+-sC           Equivalent to --script=default
+-sn           Ping scan (host discovery only). Suitable for scanning large subnets to verify which hosts are up
+-Pn           Treat all hosts as online (skip ping). Useful when firewalls block ICMP ping
+-O            Enable OS detection
+-A            Aggressive scan (OS detection, version detection, script scanning, traceroute)
+-n            Never do DNS resolution (use IP addresses directly)
+-p-           Scan all ports (1-65535)
+-p 1-65535    Specify port range. By default, Nmap scans the top 1000 ports
+-p T:80       TCP port 80
+-P U:53       UDP port 53
+--script vuln Scan for known vulnerabilities
+-T4           Set timing template. If network is stable, -T4 is recommended
+              Highly recommended to improve scan speed
+-oG -         Output scan results in Grepable format to stdout
 ```
 Sudo vs UnSudo
 ```bash
 nmap 192.168.0.7 -sn -n --packet-trace
-# 觀察 : CONN 是使用 TCP 80 ,443 去偵測主機
+# Observation: CONN uses TCP 80, 443 to probe the host
 
 sudo nmap 192.168.0.7 -sn -n --packet-trace
-# 觀察 : 
-# 這次是使用 SENT、RCVD去偵測主機
-# 也就是這次有權限可以call raw socket使用ARP去偵測
-# 防火牆是無法阻擋ARP的，ARP是網路的基本
+# Observation: 
+# This time SENT and RCVD are used to probe the host
+# With root privileges, Nmap calls raw sockets using ARP requests to detect the host
+# Firewalls cannot block ARP; ARP is fundamental to local Ethernet communication
 
 
-# 加了sudo就無敵了嗎
+# Is adding sudo completely invincible?
 sudo nmap scanme.nmap.org -sn -n --packet-trace
-# 觀察 : 
-# 這次使用ICMP type=8 , ICMP type=13
-# CONN使用 80,443
-# 換句話說，如果這些防火牆全部檔掉的話，就找不到這台機器
+# Observation: 
+# This time ICMP type=8, ICMP type=13 are used
+# CONN uses 80, 443
+# In other words, if firewalls block all these probes, the host will not be found
 
 
-# 有沒有什麼掃描基本上沒問題的解決方法呢?
+# Is there a reliable scanning approach that works most of the time?
 sudo nmap scanme.nmap.org -sn -PS22,80,445,3389 -n --packet-trace
 # Windows : TCP 139,445,3389
 # Linux   : TCP 22,80
-# 通常來說，如果主機是正常的機器這些會開，可以找這些port來判斷這台機器的狀態
+# Typically, if a machine is running normally, these ports are open; check these ports to determine host status
 ```
 IP Scan Script
 ```bash
@@ -86,9 +86,9 @@ sudo nmap 192.168.0.* -n -sn -PS22,80,445,3389 -oG > ip_list
 ping -c 1 192.168.0.7
 ping -c 1 192.168.0.7 | grep "bytes from"
 for ip in {1..254};do (ping -c 1 192.168.0.$ip | grep "bytes from" &);done
-# & : 放入背景執行，這樣在每個IP的ping命令都在背景執行的同時，腳本可以繼續迭代下一個IP
+# & : Run in background so ping executes concurrently while the loop iterates to next IP
 
-#這個才是精隨，Icmp前的arp是檔不住的
+# The real essence: ARP requests preceding ICMP cannot be blocked on local subnets
 cat /proc/net/arp 
 cat /proc/net/arp | grep -v 00:00:00:00:00:00 | grep eth0 | cut -d' ' -f1
 ```
@@ -100,23 +100,23 @@ Nmap Default
 ```bash
 nmap 192.168.0.70
 nmap 192.168.0.70 --top 1000
-# 觀察 : 
-# Nmap 預設掃描1000個port
-# 可以到/usr/share/nmap/nmap-services去看是哪些
+# Observation: 
+# Nmap scans 1000 ports by default
+# Check /usr/share/nmap/nmap-services to see which ones
 
-# 看看Nmap優先掃描的前三個port是什麼
+# See the top 3 priority ports scanned by Nmap
 nmap 192.168.0.70 --top 3 #23 80 443
 nmap 192.168.0.70 --top 1 #80
 
-# 全Port掃描
-# - 之前沒填代表1
-# - 之後沒填代表65536
+# Full port scan
+# Omitting before "-" defaults to 1
+# Omitting after "-" defaults to 65535
 nmap 192.168.0.70 -p -
 ```
 hping3
 ```bash
-# Ping的加強版，可以處理防火牆的問題
-# 因為他不只利用icmp去執行ping這個動作
+# Enhanced ping tool that handles firewall issues
+# Because it uses TCP/UDP packets rather than just ICMP to perform the ping action
 sudo hping3 192.168.0.7 -n -S -c 3 -p 80
 ```
 Port Scan Script
@@ -128,17 +128,17 @@ bash -c 'for port in {1..100}; do (echo > /dev/tcp/192.168.0.70/$port && echo $p
 
 # UDP
 sudo nmap -sU -p137-139 192.168.0.70  # netbios
-# 觀察 :
-# ICMP type=3 port unreachable的回應，通常表示該UDP端口是閉合的
-# 因為UDP是一種無連接的協定，無法像 TCP 那樣進行三次握手等連接建立的過程
-# 如果端口是閉合的，目標主機則通常會回應 port unreachable這樣的錯誤消息
+# Observation:
+# An ICMP type=3 port unreachable response typically indicates that the UDP port is closed
+# Because UDP is a connectionless protocol without a 3-way handshake like TCP,
+# if a port is closed, the target host usually responds with an ICMP port unreachable error message
 
-# UDP 通常會開的Port
-53,69,137,138,161,1900,5353  # 考試port:161須注意
+# Common UDP ports:
+53,69,137,138,161,1900,5353  # Note for exam: port 161 (SNMP) is critical
 ```
 RustScan
 ```bash
-# 一個快速且暴力的TCP從1掃到65535的工具
+# A fast and aggressive TCP port scanner from port 1 to 65535
 # https://github.com/RustScan/RustScan/releases
 
 
@@ -150,7 +150,7 @@ sudo dpkg -i rustscan_2.0.1_amd64.deb
 rustscan -a 192.168.0.7 -u 5000 -t 8000 
 rustscan -a 192.168.0.7 -u 5000 -t 8000 --scripts none
 rustscan -a 192.168.0.7 -u 5000 -t 8000 --scripts -- -n -Pn -sVC -oG
-# -u : Linux 預設的 soft limit 太低(預設為 1024)，會導致 RustScan 發揮不出原本應有的速度
+# -u : The default Linux ulimit (soft limit) is low (usually 1024), preventing RustScan from reaching its full speed
 ```
 
 
@@ -161,10 +161,10 @@ rustscan -a 192.168.0.7 -u 5000 -t 8000 --scripts -- -n -Pn -sVC -oG
 Service
 ```bash
 nmap 192.168.0.7 -p47001
-# Windows Remote Management（WinRM）
-# WinRM 是一項 Microsoft 技術，用於管理和遠程執行 Windows 作業系統的操作
-# 支援通過SOAP（Simple Object Access Protocol）
-# 和XML（Extensible Markup Language）在HTTP協定上進行通信
+# Windows Remote Management (WinRM)
+# WinRM is a Microsoft technology used for remote management and execution on Windows OS
+# Communicates over HTTP/HTTPS using SOAP (Simple Object Access Protocol)
+# and XML (Extensible Markup Language)
 
 # Windows
 sudo nmap -n -p445,3389 192.168.0.8,20 -sVC

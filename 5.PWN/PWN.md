@@ -4,7 +4,7 @@ PWN
 
 # Foreword
 ```
-C語言是創造作業系統的語言(ex.Unix)，有其不可替代性，因為它是創造電腦世界的基礎
+C is the language that created modern operating systems (e.g. Unix); it remains irreplaceable because it forms the foundation of modern computing.
 ```
 
 # Execuable
@@ -14,17 +14,16 @@ C語言是創造作業系統的語言(ex.Unix)，有其不可替代性，因為�
 
 Windows
 ```
-- 在windows中的程式鑰成功執行，檔案對、設定也要對
-- MS Visual C Runtime (msvcrt.dll) : 打包了微軟所有C語言的函式實做
-- 當msvcrt.dll missing時，我們就需要去下載 C++可轉散發套件
-  但到底哪一版只有寫程式的那個人知道
-- cygwin : 把整個Linux的開發環境(Runtime)原封不動的跑到windows底下執行
+- For a program in Windows to execute successfully, the files and configuration must both match
+- MS Visual C Runtime (msvcrt.dll) : Packages Microsoft's C standard library function implementations
+- When msvcrt.dll is missing, we need to download the Visual C++ Redistributable; which exact version is needed is often known only by the developer
+- cygwin : Runs a POSIX/Linux emulation runtime environment directly under Windows
 ```
 
 Linux
 ```
-- Gun C Library(glibc.so)
-- Wine(Wine is not an Emulator) : 把Windows執行環境(Runtime)搬到Linux，把msvcrt寫成Linux版本
+- GNU C Library (glibc.so)
+- Wine (Wine Is Not an Emulator) : Brings the Windows runtime/API to Linux, implementing Windows libraries natively on Linux
 ```
 # Memory
 ```
@@ -34,17 +33,17 @@ Linux
 
 # Assembly
 ```
-AT&T  => 大端序
-Intel => 小端序
+AT&T  => source, destination
+Intel => destination, source
 
-組譯 => 注音變中文
-編譯 => 中文翻成英文
+Assemble => Assembly to Machine code
+Compile  => Source code to Machine code / Assembly
 ```
 
 # StackFrame
 Stack
 ```bash 
-# Save EBP往上開始才是新的stack frame
+# Above Saved EBP is where the new stack frame begins
 
 
 Local Var  

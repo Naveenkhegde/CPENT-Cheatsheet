@@ -6,7 +6,7 @@ Chisel
 
 # Local
 ![](./Chisel%20Local.png)
-> Server在入侵機器上
+> Server on the compromised/target machine
 ```bash
 chisel server -p 443
 
@@ -21,7 +21,7 @@ chisel.exe server -p 12345
 
 # Remote
 ![](./Chisel%20Remote.png)
-> Server在自己身上
+> Server on your attack machine
 ```bash
 chisel server -p 443 --reverse 
 

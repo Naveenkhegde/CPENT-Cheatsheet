@@ -25,16 +25,15 @@ Disable 172.19.19.7
 # MSF
 ![](./MSF.png)
 ```
-做法:
-1. SSH過去SSH Server種Meterpreter後門後會彈一個Reverse Connection回來
-2. Session建立後做Session Routing
+Method:
+1. SSH into the SSH Server and deploy a Meterpreter backdoor which connects back via a Reverse Connection
+2. Once the session is established, configure Session Routing
 ```
 ```
-MSF的autoroute模組是MSF框架中自帶的路由轉送功能
-實作是MSF框架在已經取得的Meterpreter Shell的基礎上
-增加一條去往「內網」的路由，直接使用MSF去存取原本不能
-直接存取的內部網路資源，只要路由可達我們即可使用MSF來
-進行探測
+MSF's autoroute module provides built-in routing and pivoting within Metasploit.
+It adds a route to the internal subnet through the established Meterpreter session,
+allowing Metasploit modules to reach otherwise inaccessible internal network resources.
+As long as the route is reachable, MSF can be used directly for internal scanning and exploitation.
 ```
 SSH
 ```bash
@@ -57,7 +56,7 @@ run autoroute -p  #gateway : Session1
 background
 
 
-#也可以使用route add去設置
+# You can also use "route add" to configure routing
 ```
 MS17_010
 ```bash

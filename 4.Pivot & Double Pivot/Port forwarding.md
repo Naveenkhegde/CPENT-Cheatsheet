@@ -5,7 +5,7 @@ Port forwarding
 
 # Datapipe
 > single bin, simple function
-> 輕薄短小
+> Lightweight and compact
 
 ![](./Datapipe.png)
 ```bash
@@ -31,7 +31,7 @@ exploit
 
 # Socat
 > full function, fat, support UDP
-> 最有名的Port Forward，但很肥
+> Most famous port forwarder, but bulky
 
 ```bash
 socat tcp-listen:80,fork     tcp:<IP>:80
@@ -42,8 +42,7 @@ socat udp-recvfrom:123,fork  udp-sendto:<IP>:123
 
 # Portproxy
 > Windows netsh built-in
-> Windows內建 
-> 需要是本機管理權限
+> Requires local administrator privileges
 
 ```bash
 netsh interface portproxy add    v4tov4 8888 <IP> 80

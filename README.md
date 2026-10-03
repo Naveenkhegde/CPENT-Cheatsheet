@@ -10,40 +10,40 @@ CPENT
 ---
 
 # Exam Reflections
-- **前言**
-在2023年年底報名了恆逸的CPENT課程，因為一年後準備考OSCP打算拿CPENT先練練手找找考試的感覺，大概研究了一下雖然範圍廣但都是一定的出題模式，加上身邊不少的滲透還是一般的網管人員都有拿取這張證照，所以就以LPT為目標去準備。想說考不到的話OSCP也不用想了。
+- **Introduction**
+At the end of 2023, I enrolled in the CPENT course at Ucom. Because I was preparing to take OSCP a year later, I decided to take CPENT first to practice and get a feel for the exam environment. After researching it, although the scope is broad, there is a consistent exam pattern. In addition, many penetration testers and network administrators around me hold this certification, so I prepared with LPT (Licensed Penetration Tester Master) as my goal. I thought to myself: if I can't pass this, I shouldn't even think about OSCP.
 
-- **上課**
-上過恆逸課程或者是資安圈的大概都知道是哪個老師來上課，老師上的很不錯，要認真聽並且把每個練習跟精選的iLab做一次，還有老師的筆記也很有用，因為iLab有180天的期限所以回去後可以抽出一點時間在實做一次，個人是拖延症所以拖了半年才去考，一起上課的人很多都考過了我才去考，考試是一年內要考完記得不要過期。
+- **Classes / Training**
+Those who have taken Ucom courses or are in the cybersecurity community probably know which instructor teaches it. The instructor was excellent; listen carefully and complete every exercise and selected iLab at least once. The instructor's notes are also very useful. Because iLab access lasts 180 days, you can take some time after class to practice hands-on again. Personally, I procrastinated for six months before taking the exam—many classmates who took the class with me had already passed by the time I took it. Remember that the exam must be taken within one year, so make sure it doesn't expire.
 
-- **考試**
-考試分成12小時兩次或者24小時一次，考過的人通常會推薦12小時兩次的方案，一方面精神壓力比較小，一方面兩次考試中間可以針對不確定的題目去做一些複習跟求救，所以我也是選擇了12小時的方案，特別在北部找了一間空房做考試，等考試面板的倒數計時結束，點進去照步驟做就可以完成監考，我是使用kali做為主要攻擊機，然後用OpenVPN去連線考場環境。
+- **Exam**
+The exam can be taken as two 12-hour sessions or one 24-hour session. Those who have passed usually recommend the two 12-hour option: on one hand, mental stress is much lower; on the other hand, in the gap between the two exam sessions, you can review, research, or seek guidance on questions you were unsure about. Therefore, I also chose the two 12-hour option. I booked an empty room in northern Taiwan specifically for the exam. Once the countdown on the exam dashboard finishes, click in and follow the steps to complete the proctoring setup. I used Kali Linux as my primary attack machine and connected to the exam lab environment via OpenVPN.
 
-   **針對一些人可能會有的問題:**   
+   **Common Questions:**   
    ```
-   1. 考試的時段怎麼選?
-      基本上要提前三天預約考試，考試時間通常是重中午12-13開始往後加12小時，所以基本上是中午到半夜
-   2. 可以一邊聽音樂嗎?
-      我遇到的考官是不行，但也有聽說有遇到可以的，可以透過小聊天窗提出你的訴求
-   3. 可以一邊吃東西嗎?
-      在詢問完考官後，他的意思是不離開螢幕都可以不用跟他說，所以我在鏡頭前大嗑漢堡
-   4. 可以上廁所嗎?
-      跟考官說就可以，但不要離開太久，回座位也記得說一聲
-   5. 可以使用雙螢幕嗎?
-      是說不行，但也是有聽說把主螢幕關掉指接擴大螢幕的，自行斟酌，我是乖乖盯著我的小筆電
+   1. How do you choose the exam time slot?
+      Basically, you need to schedule the exam at least three days in advance. Exam slots usually start around 12:00 - 13:00 (noon) and add 12 hours from there, so it basically runs from noon to midnight.
+   2. Can you listen to music during the exam?
+      The proctor I had did not allow it, but I heard that some proctors do. You can ask through the chat window.
+   3. Can you eat while taking the exam?
+      After asking the proctor, they said as long as you don't leave the camera view, you don't even need to ask. So I devoured burgers right in front of the camera.
+   4. Can you take bathroom breaks?
+      Yes, just inform the proctor, but don't stay away for too long, and remember to notify them when you return to your seat.
+   5. Can you use dual monitors?
+      Officially no. However, some people have reported turning off their laptop display and projecting to a single external monitor—exercise your own discretion. I obediently stuck to my small laptop screen.
    ```
-- **考試小提醒**
-  1. 一邊做答一邊截圖，要不然真的會忘記
-  2. 不一定真的乖乖提權，有時候內核類的提權也可以達到你要的結果
-  3. 可以的話去調整一下字典檔的順序，要不然你需要暴力破解非常久
-  4. 有些人可能從網路上搞到海盜版的解答，但一定要依實機狀況做調整
-     解答只是一個做法，我就遇到需要與在與解答不同IP上才能找到需要的資訊
-     所以不要跟著解答的指令無腦下，還是要好好探索網路環境，不然做起來真的很不合理
-  5. 可以提早結束考試，我第二個12小時只做了四小時就交了，只要確定需要的資訊截圖都有留下
-  6. 每個題組作答完畢記得都按儲存答案
+- **Exam Tips**
+  1. Take screenshots as you go, otherwise you will definitely forget.
+  2. You don't always have to escalate privileges the standard way; sometimes kernel exploits can achieve the desired result.
+  3. If possible, adjust the order of your wordlist/dictionary, otherwise brute-forcing will take a very long time.
+  4. Some people might get leaked solutions online, but you MUST adapt to the actual machine state.
+     A solution is only one methodology. I encountered a case where I had to find the required info on a completely different IP than what was in the guide.
+     So don't blindly copy commands from cheat sheets; explore the network environment properly, otherwise your steps won't make sense.
+  5. You can end the exam early. In my second 12-hour session, I submitted after only 4 hours, as long as you've verified that all necessary information and screenshots are saved.
+  6. Remember to click "Save Answer" after finishing each question set.
 
-- **成績**
-考完後七天內需要繳交你的滲透測試報告，儀表板上有模板可以下載，記得是七天內要不然你需要多交100美元的延長金，不太划算。這邊就要講個遇到的坑，我的儀表在我第五天要繳交報告按下送出按鈕時，畫面只有轉了一下，沒有任何反應，也沒有說報告上傳成功，這時候請你毫不吝嗇的爆Call他們的客服，我自己是寄信加上ChatBox瘋狂轟炸，因為他們處理的時間確實不快，超過七天要不要多交錢沒人知道，後來團隊是要我直接把報告寄給他們就好，記得要再去追問你的報告狀態，真的有上到儀表的時候你會很清楚地知道你的報告已經在審核，所以為了自己權益還是好好的追蹤。
+- **Results & Reporting**
+Within 7 days after the exam, you need to submit your penetration testing report. There is a template available for download on the dashboard. Keep in mind it must be within 7 days, otherwise you'll need to pay an extra $100 USD extension fee, which is not worth it. Here is a pitfall I encountered: on the 5th day when I pressed the submit button to upload my report, the screen just spun without any response, and didn't confirm that the report uploaded successfully. In this situation, do not hesitate to contact customer support immediately. I sent emails and bombarded their live ChatBox, because their response time isn't very fast, and no one wants to risk paying extra fees if it exceeds 7 days. Later, the support team told me to email the report directly to them. Remember to follow up on your report status; once it is properly uploaded to the dashboard, you will clearly see that your report is under review. Always track it carefully to protect your rights.
 
 ![](./CPENT_UpdateReportFail.gif)
 
@@ -51,52 +51,52 @@ CPENT
 
 
 # Exam
-1. 教材
-   - ASPEN課程序號開通
-   - 電子教材(一年期限)
-   - 收到Email信箱
+1. Materials
+   - ASPEN course code activation
+   - Digital courseware / e-book (1-year validity)
+   - Received via email:
      ilabs Training (Access) Key
-   - iLab靶機環境(180天)
+   - iLab lab environment (180 days)
      https://eccouncil.learnondemand.net/
-2. 考試
-   - 課程序號開通
-   - Exam Dashboard便會開通(一年期限)
-   - 預約考試後30天內需完成考試，沒考的連補考都沒有機會
-   - 真的出事沒有考到，請洽恆逸補考卷
-3. 考試時間
-   - 需準備護照
-   - 只能是平日上班日考
-   - 考試選擇，選好不能改
-     - 12 + 12 (間隔只要在30天內就可以)
-     - 24
-   - PenTest Report(7天內需繳交)
-   - CPENT:70% 、 LPT:90%
-   - 500*(分) * 5(大題) = 2500
+2. Exam Registration
+   - Course code activated
+   - Exam Dashboard will be activated (1-year validity)
+   - Must complete exam within 30 days of scheduling; missing it forfeits retake opportunities
+   - If an emergency occurs and you miss it, contact training center for retake voucher options
+3. Exam Scheduling & Rules
+   - Passport required for ID verification
+   - Can only be scheduled on weekdays (business days)
+   - Exam format selection (cannot be changed once chosen):
+     - 12 + 12 hours (interval between sessions can be anytime within 30 days)
+     - 24 hours
+   - PenTest Report (must be submitted within 7 days)
+   - CPENT: 70%, LPT (Master): 90%
+   - 500 points * 5 sections = 2500 total points
    - Launch Exam -> OpenVPN -> Exam Range
-   - 考試當天計時畫面需要掛著
-   - 只能使用單螢幕考，MAC虛擬桌面也不可以，需要meeting可以錄影錄的到
-4. 考試內容(5大題)
-   - 選擇題
-     - 大約55題選擇題，每大題約8-12題
-     - 需要尋找的資訊包含:版本、金鑰、密碼、flag
-   - 滿分 2500
-   - 題型
+   - Exam timer window must remain open during the exam
+   - Single monitor only; Mac virtual desktops are not allowed; the proctor meeting must be able to record everything
+4. Exam Content (5 Sections)
+   - Practical / Multiple Choice Questions
+     - Approx. 55 questions in total, ~8-12 questions per section
+     - Information to find includes: versions, keys, passwords, flags
+   - Total score: 2500
+   - Question Types / Sections:
      - AD (500)
      - Binary exploitation + IOT (500)
      - CTF (500)
      - OT (500)
      - Pivot & Double Pivot (500)
-5. 證照延續
-   - ECE : US120/3年
-   - 年費 : US250/年
-     可以開個apsen小號，讓年費維持US80/年
+5. Certification Renewal
+   - ECE: $120 USD / 3 years
+   - Annual Fee: $250 USD / year
+     Tip: You can maintain an Aspen subscription or basic membership to keep the annual fee at $80 USD / year
 
 ---
 
 
 
 # NOTE
-分類與整理的筆記，直接點擊連結跟返回切換頁面，不需要再去另外找目錄檔案
+Categorized and organized notes. Click links directly and use the back button to navigate between pages without needing to search through directories.
 1. Penetration Test
    - [Scan](1.Penetration%20Test/Penetration%20Test%20-%20Scan%20.md)
      - IP Scan
